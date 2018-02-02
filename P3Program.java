@@ -1,9 +1,10 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+
+        import java.io.BufferedWriter;
+        import java.io.FileWriter;
+        import java.text.DecimalFormat;
+        import java.util.ArrayList;
+        import java.util.Arrays;
+        import java.util.Random;
 
 //TO-DO: Ensure proper format, output to a file
 
@@ -43,6 +44,8 @@ public class P3Program {
         DecimalFormat formatSize = new DecimalFormat( "0,000"); //for style
         try {
             writer = new BufferedWriter(new FileWriter("P3Output.txt",true));
+            writer.write("-----------------------------------------------------");
+            writer.newLine();
             writer.write("FILL: Time taken to fill each list with " + formatSize.format(size) + " elements:" );
             writer.newLine();
             writer.newLine();
@@ -127,11 +130,11 @@ public class P3Program {
                 System.out.println(e.getMessage());
             }
 
-                //clear out values after each loop
-                Arrays.fill(intArray, 0);
-                Arrays.fill(floatArray, 0);
-                intList.clear();
-                floatList.clear();
+            //clear out values after each loop
+            Arrays.fill(intArray, 0);
+            Arrays.fill(floatArray, 0);
+            intList.clear();
+            floatList.clear();
 
         }
 
@@ -141,6 +144,8 @@ public class P3Program {
     void increment() {
         try {
             writer = new BufferedWriter(new FileWriter("P3Output.txt", true));
+            writer.write("-----------------------------------------------------");
+            writer.newLine();
             writer.write("INCREMENT: Time taken to increment each element by 1: ");
             writer.newLine();
             writer.newLine();
