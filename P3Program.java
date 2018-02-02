@@ -58,7 +58,7 @@ public class P3Program {
         long startWall, startCPU, stopWall, stopCPU;
         double intArrayTimeWall, intArrayTimeCPU, floatArrayTimeWall, floatArrayTimeCPU,
                 intListTimeWall, intListTimeCPU, floatListTimeWall, floatListTimeCPU;
-        for(int j = 0; j < 5; j++) {
+        for(int j = 0; j < 10; j++) {
             try{
                 writer = new BufferedWriter(new FileWriter("P3Output.txt", true));
                 writer.write("FILL RUN #: " + (j + 1) + '\n');
@@ -158,7 +158,7 @@ public class P3Program {
         long startWall, startCPU, stopWall, stopCPU;
         double intArrayTimeWall, intArrayTimeCPU, floatArrayTimeWall, floatArrayTimeCPU,
                 intListTimeWall, intListTimeCPU, floatListTimeWall, floatListTimeCPU;
-        for(int j = 0; j < 5; j ++) { //run loops enough times to get an accurate reading
+        for(int j = 0; j < 10; j ++) { //run loops enough times to get an accurate reading
 
             for (int i = 0; i < size; i++) {    //fill the arrays and arraylists
                 intArray[i] = randomGenerator.nextInt(bound);
@@ -276,6 +276,8 @@ public class P3Program {
         run.fill();
         run.increment();
         run.runtime();
+        System.out.println();
+        System.out.println("Output printed to file P3Output.txt!");
 
     }
 }
