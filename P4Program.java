@@ -43,33 +43,38 @@ public class P4Program {
         int key = size;
     }
 
+    boolean isEmpty(){
+        return first == null;
+    }
+
     void enqueue(String element) {
-        if (first == null) {
-            first = last = new QueueNode();
-            first.data = element;
-            first.key = size;
-            size++;
-        } else {
+
+            QueueNode secondToLast = last;
             last = new QueueNode();
             last.data = element;
             last.key = size;
-            size++;
-            last.next = first;
-
+            last.next = null;
+        if (isEmpty()) {
+            first = last;
+        } else {
+            secondToLast.next = last;
+            last.data = element;
+            last.key = size;
         }
+        size++;
     }
 
     void dequeue() {
-        if (first == null) {
-            System.out.println("Error: Queue is empty");
+        if (isEmpty()) {
+//            System.out.println("Error: Queue is empty");
+            last = null;
         }
         if (first == last) {
             first = last = null;
         }
         else {
-            QueueNode temp = first.next;
             first = first.next;
-            last = last.next;
+            size--;
         }
     }
 
@@ -275,17 +280,17 @@ public class P4Program {
                 this.pop();
             }
         }
-//        while (temp != null) {
-//            try {
-//                Scanner fileScanner = new Scanner(new FileReader(input));
-//                while (fileScanner.hasNext()) {
-//                    this.push(fileScanner.next());
-//                }
-//                fileScanner.close();
-//            } catch (Exception e) {
-//                System.out.println(e.getMessage());
-//            }
-//        }
+        while (temp != null) {
+            try {
+                Scanner fileScanner = new Scanner(new FileReader(input));
+                while (fileScanner.hasNext()) {
+                    this.push(fileScanner.next());
+                }
+                fileScanner.close();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     //not working properly--SEEK HELP
@@ -299,7 +304,7 @@ public class P4Program {
                 System.out.println();
                 return;
 
-            } else if (!first.data.equalsIgnoreCase(query)) {
+            } else {
                 this.dequeue();
             }
         }
