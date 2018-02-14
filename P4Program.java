@@ -1,11 +1,12 @@
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 //TO-DO: implement doubly linked lists
 public class P4Program {
-
+    BufferedWriter writer;
+    DecimalFormat realFormatter;
     LinkedList<Lelement> stackList, queueList, temp;
     File input;
     Scanner userInput;
@@ -13,7 +14,7 @@ public class P4Program {
     QueueNode first, last;
     String wordQuery;
     int keyQuery = -1;
-    int size;
+    int size, totalSize;
     private final int milSec = 1000;
     private final int nanoSec = 1000000000;
     long startWall, startCPU, stopWall, stopCPU;
@@ -28,13 +29,13 @@ public class P4Program {
     class StackNode {
         String data;
         StackNode next;
-        int key = size;
+        int key;
     }
 
     class QueueNode {
         String data;
         QueueNode next;
-        int key = size;
+        int key;
 
     }
 
@@ -42,6 +43,19 @@ public class P4Program {
         String data;
         DoubleNode next, prev;
         int key = size;
+    }
+
+    public P4Program(){
+        try {
+            writer = new BufferedWriter(new FileWriter("P4Output.txt"));
+            writer.write("Khamunetri Clark");
+            writer.newLine();
+            writer.newLine();
+            writer.close();
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
     boolean isEmpty(){
@@ -84,6 +98,7 @@ public class P4Program {
         head = new StackNode();
         head.data = element;
         head.next = pushDown;
+        head.key = size;
         size++;
     }
 
@@ -140,6 +155,7 @@ public class P4Program {
             stopCPU = System.nanoTime();
             nodeStackWall = ((double) stopWall - (double) startWall) / milSec;
             nodeStackCPU = ((double) stopCPU - (double) startCPU) / nanoSec;
+            totalSize = size;
             size = 0; //CHECK AFTER SEARCHING METHODS ARE COMPLETE
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -305,15 +321,20 @@ public class P4Program {
                 this.pop();
             }
         }
+        if(head == null) { //first method call checks to see if the word is present
+//            System.out.println("Query not found, returning to menu...");
+            fillNodeStack(); //reset lists
+            loadLists();
+        }
     }
 
 
     void searchNodeStack() {
         while (head != null) {
-            if (head.data.equalsIgnoreCase(wordQuery) || head.key == keyQuery) {
+            if (head.data.equalsIgnoreCase(wordQuery)) {
                 this.peek();
                 return;
-            } else if (!head.data.equalsIgnoreCase(wordQuery) || head.key != keyQuery) {
+            } else if (!head.data.equalsIgnoreCase(wordQuery)) {
                 this.pop();
             }
         }
@@ -410,30 +431,6 @@ public class P4Program {
         }
         queueList = temp;
     }
-    //TO-DO: allow for both numerical and string entries
-    public void run() {
-        System.out.println("P4 Program: given an input file words.txt" + "\n(Please type a number 1-7 to access the corresponding menu option)" + "\n1 - Input File" + "\n2 - Load Lists" + "\n3 - Word Search" + "\n4 - Key Search");
-        userInput = new Scanner(System.in);
-        int menuSelection = userInput.nextInt();
-        try {
-            if (menuSelection == 1) {
-                this.getInput();
-            }
-            if (menuSelection == 2) {
-                System.out.println("Loading lists... (Will return to menu when complete)");
-                this.loadLists();
-            }
-            if (menuSelection == 3) {
-                this.searchListsByWord();
-            }
-            if (menuSelection == 4) {
-                this.searchListsByKey();
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     //get input file
     public void getInput() {
         userInput = new Scanner(System.in);
@@ -447,6 +444,71 @@ public class P4Program {
         System.out.println("-------------------------------------");
         this.run();
 
+    }
+    public void showStats() {
+        realFormatter = new DecimalFormat("0.0000");
+        DecimalFormat sizeFormat = new DecimalFormat("0,000");
+        System.out.println("There are " + sizeFormat.format(totalSize) + " words in the list. \nStack - simple linked list:     " + this.realFormatter.format(nodeStackCPU) + " seconds CPU time    " + this.realFormatter.format(nodeStackWall) + " seconds wall clock " +
+                                                                              "\nStack - LinkedList:     " + this.realFormatter.format(listStackCPU) + " seconds CPU time    " + this.realFormatter.format(listStackWall) + " seconds wall clock " +
+                                                                              "\n " +
+                                                                              "\nQueue - simple linked list:     " + this.realFormatter.format(nodeQueueCPU) + " seconds CPU time    " + this.realFormatter.format(nodeQueueWall) + " seconds wall clock " +
+                                                                              "\nQueue - LinkedList:     " + this.realFormatter.format(listQueueCPU) + " seconds CPU time    " + this.realFormatter.format(listQueueWall) + " seconds wall clock ");
+        run();
+    }
+    public void writeStats() {
+        realFormatter = new DecimalFormat("0.0000");
+        DecimalFormat sizeFormat = new DecimalFormat("0,000");
+        System.out.println("Writing to file...");
+        try {
+            writer = new BufferedWriter(new FileWriter("P4Output.txt", true));
+            writer.newLine();
+            writer.write("There are " + sizeFormat.format(totalSize) + " words in the list.");
+            writer.newLine();
+            writer.write("Stack - simple linked list:     " + this.realFormatter.format(nodeStackCPU) + " seconds CPU time    " + this.realFormatter.format(nodeStackWall) + " seconds wall clock ");
+            writer.newLine();
+            writer.write("Stack - LinkedList:     " + this.realFormatter.format(listStackCPU) + " seconds CPU time    " + this.realFormatter.format(listStackWall) + " seconds wall clock ");
+            writer.newLine();
+            writer.newLine();
+            writer.write("Queue - simple linked list:     " + this.realFormatter.format(nodeQueueCPU) + " seconds CPU time    " + this.realFormatter.format(nodeQueueWall) + " seconds wall clock ");
+            writer.newLine();
+            writer.write("Queue - LinkedList:     " + this.realFormatter.format(listQueueCPU) + " seconds CPU time    " + this.realFormatter.format(listQueueWall) + " seconds wall clock ");
+            writer.close();
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+        System.out.println("Writing complete!");
+        run();
+    }
+    //TO-DO: allow for both numerical and string entries
+    public void run() {
+        System.out.println("P4 Program: given an input file words.txt" + "\n(Please type a number 1-7 to access the corresponding menu option)" + "\n1 - Input File" + "\n2 - Load Lists" + "\n3 - Word Search" + "\n4 - Key Search" + "\n5 - Show Statistics" + "\n6 -Write Statistics");
+        userInput = new Scanner(System.in);
+        int menuSelection = userInput.nextInt();
+        try {
+            if (menuSelection == 1) {
+                this.getInput();
+            }
+            if (menuSelection == 2) {
+                System.out.println("Loading lists... (Will return to menu when complete)");
+                this.loadLists();
+            }
+            if (menuSelection == 3) {
+                searchListsByWord();
+            }
+            if (menuSelection == 4) {
+                searchListsByKey();
+            }
+            if (menuSelection == 5) {
+                showStats();
+            }
+            if (menuSelection == 6) {
+                writeStats();
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     //    void getFileName(){
