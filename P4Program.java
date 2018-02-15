@@ -278,6 +278,7 @@ public class P4Program {
         searchLinkedListStack();
         searchLinkedListQueue();
         System.out.println("Search complete. \nReturning to menu...");
+        System.out.println("---------------------------------------");
         size = 0;
         loadLists();
         run();
@@ -308,6 +309,7 @@ public class P4Program {
         keySearchLinkedListStack();
         keySearchLinkedListQueue();
         System.out.println("Search complete. \nReturning to menu...");
+        System.out.println("---------------------------------------");
         size = 0;
         loadLists();
         run();
@@ -340,6 +342,7 @@ public class P4Program {
         }
         if(head == null) { //first method call checks to see if the word is present
             System.out.println("Query not found, returning to menu...");
+            System.out.println("-------------------------------------");
             fillNodeStack(); //reset lists
             loadLists();
             run();
@@ -440,6 +443,10 @@ public class P4Program {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        if(input.length() < 4){
+            System.out.println("Invalid filename (be sure to include type extension)");
+            getInput();
+        }
         System.out.println("File name saved, returning to menu...");
         System.out.println("-------------------------------------");
         this.run();
@@ -449,10 +456,11 @@ public class P4Program {
         realFormatter = new DecimalFormat("0.0000");
         DecimalFormat sizeFormat = new DecimalFormat("0,000");
         System.out.println("There are " + sizeFormat.format(totalSize) + " words in the list. \nStack - simple linked list:     " + this.realFormatter.format(nodeStackCPU) + " seconds CPU time    " + this.realFormatter.format(nodeStackWall) + " seconds wall clock " +
-                                                                              "\nStack - LinkedList:     " + this.realFormatter.format(listStackCPU) + " seconds CPU time    " + this.realFormatter.format(listStackWall) + " seconds wall clock " +
-                                                                              "\n " +
-                                                                              "\nQueue - simple linked list:     " + this.realFormatter.format(nodeQueueCPU) + " seconds CPU time    " + this.realFormatter.format(nodeQueueWall) + " seconds wall clock " +
-                                                                              "\nQueue - LinkedList:     " + this.realFormatter.format(listQueueCPU) + " seconds CPU time    " + this.realFormatter.format(listQueueWall) + " seconds wall clock ");
+                "\nStack - LinkedList:     " + this.realFormatter.format(listStackCPU) + " seconds CPU time    " + this.realFormatter.format(listStackWall) + " seconds wall clock " +
+                "\n " +
+                "\nQueue - simple linked list:     " + this.realFormatter.format(nodeQueueCPU) + " seconds CPU time    " + this.realFormatter.format(nodeQueueWall) + " seconds wall clock " +
+                "\nQueue - LinkedList:     " + this.realFormatter.format(listQueueCPU) + " seconds CPU time    " + this.realFormatter.format(listQueueWall) + " seconds wall clock ");
+        System.out.println("-----------------------------------------------------------------------");
         run();
     }
     public void writeStats() {
@@ -478,32 +486,46 @@ public class P4Program {
             System.out.println(e.getMessage());
         }
         System.out.println("Writing complete!");
+        System.out.println("-----------------");
         run();
     }
     //TO-DO: allow for both numerical and string entries
     public void run() {
-        System.out.println("P4 Program: given an input file words.txt" + "\n(Please type a number 1-7 to access the corresponding menu option)" + "\n1 - Input File" + "\n2 - Load Lists" + "\n3 - Word Search" + "\n4 - Key Search" + "\n5 - Show Statistics" + "\n6 -Write Statistics");
+        System.out.println("P4 Program: given an input file, perform a variety of operations through interaction with user interface." + "\n(Please type a number 1-7 to access the corresponding menu option)" + "\n1 - Input File" +
+                "\n2 - Load Lists" + "\n3 - Word Search" + "\n4 - Key Search" + "\n5 - Show Statistics" + "\n6 - Write Statistics" + "\n7 - Exit");
         userInput = new Scanner(System.in);
-        int menuSelection = userInput.nextInt();
         try {
-            if (menuSelection == 1) {
+            String menuSelection = userInput.next();
+            if (menuSelection.equals("1")) {
                 this.getInput();
             }
-            if (menuSelection == 2) {
+            if (menuSelection.equals("2")) {
                 System.out.println("Loading lists... (Will return to menu when complete)");
                 this.loadLists();
             }
-            if (menuSelection == 3) {
+            if (menuSelection.equals("3")) {
                 searchListsByWord();
             }
-            if (menuSelection == 4) {
+            if (menuSelection.equals("4")) {
                 searchListsByKey();
             }
-            if (menuSelection == 5) {
+            if (menuSelection.equals("5")) {
                 showStats();
             }
-            if (menuSelection == 6) {
+            if (menuSelection.equals("6")) {
                 writeStats();
+            }
+            if (menuSelection.equals("7")){
+                System.out.println("Terminating program...");
+                System.exit(0);
+            }
+            if (!menuSelection.equals("7") || !menuSelection.equals("6")||
+                    !menuSelection.equals("5") || !menuSelection.equals("4") ||
+                    !menuSelection.equals("3") || !menuSelection.equals("2")||
+                    !menuSelection.equals("1")){
+                System.out.println("Invalid selection. \nPlease input an integer [1-7] for the corresponding menu option.");
+                System.out.println("-------------------------------------------------------------------------------------");
+                run();
             }
 
         } catch (Exception e) {
