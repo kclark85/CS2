@@ -1,29 +1,28 @@
 
-        import java.io.*;
-        import java.text.DecimalFormat;
-        import java.util.LinkedList;
-        import java.util.NoSuchElementException;
-        import java.util.Scanner;
-        import java.util.Stack;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.text.DecimalFormat;
+import java.util.*;
 
-//TO-DO: implement doubly linked lists
 public class P4Program {
     BufferedWriter writer;
     DecimalFormat realFormatter;
     LinkedList<Lelement> stackList, queueList, temp;
+    Stack<Lelement> jStack;
     File input;
     Scanner userInput;
     StackNode stack;
     QueueNode queue;
     DoubleNode DLL;
-    String wordQuery;
-    int keyQuery = -1;
+    String query;
     int floatingSize, totalSize;
     private final int MILSEC = 1000;
     private final int NANOSEC = 1000000000;
     long startWall, startCPU, stopWall, stopCPU;
     double nodeStackWall, nodeStackCPU, nodeQueueWall, nodeQueueCPU, listStackWall, listStackCPU,
-            listQueueWall, listQueueCPU, doubleListWall, doubleListCPU;
+            listQueueWall, listQueueCPU, doubleListWall, doubleListCPU, jStackWall, jStackCPU;
 
     class Lelement {
         String word;
@@ -35,7 +34,7 @@ public class P4Program {
         Node next;
         Node prev;
 
-        public Node(){
+        public Node() {
 
         }
 
@@ -44,10 +43,11 @@ public class P4Program {
             this.next = null;
         }
     }
+
     class StackNode {
         Node head;
 
-        public StackNode(){
+        public StackNode() {
 
         }
 
@@ -56,7 +56,7 @@ public class P4Program {
         }
 
         void push(Node node) {
-            if(this.head == null) {
+            if (this.head == null) {
                 this.head = node;
             }
             Node first = node;
@@ -71,7 +71,6 @@ public class P4Program {
                 return null;
             }
             head = head.next;
-//            floatingSize--;
             return temp;
         }
 
@@ -88,53 +87,42 @@ public class P4Program {
     class QueueNode {
         Node first, last;
 
-        public QueueNode(){
-
-        }
-
-        public QueueNode (Node end){
-            this.last = end;
-
-        }
-
-        public QueueNode (Node start, Node end ){
+        public QueueNode() {
 
         }
 
         void enqueue(Node node) {
 
             Node temp = new Node(node.data);
-            if(first == null){
+            if (first == null) {
                 first = last = temp;
-            }
-            else {
+            } else {
                 last.next = temp;
                 last = temp;
             }
-             last.next = first;
+            last.next = first;
         }
 
         Node dequeue() {
             Node temp = new Node();
             if (first.data == null) {
                 throw new NoSuchElementException();
-            }
-            else if (first == last) {
+            } else if (first == last) {
                 temp.data = first.data;
                 first = last = null;
             } else {
                 temp = first;
                 first = first.next;
                 last.next = first;
-//                floatingSize--;
             }
             return temp;
         }
 
-        Lelement getFirstElement(){
+        Lelement getFirstElement() {
             return this.first.data;
         }
-        Lelement getLastElement(){
+
+        Lelement getLastElement() {
             return this.last.data;
         }
 
@@ -144,18 +132,12 @@ public class P4Program {
         Node post, pre, ref, search; //post and pre "guard" first and last value
 
         public DoubleNode() {
-            pre  = new Node();
+            pre = new Node();
             post = new Node();
             search = new Node();
             pre.next = post;
             post.prev = pre;
 
-        }
-
-        public DoubleNode(Node start) {
-            ref = start;
-            ref.next = post;
-            ref.prev = pre;
         }
 
         void add(Node node) {
@@ -204,6 +186,7 @@ public class P4Program {
             this.run();
         }
 
+        fillJavaStack();
         fillNodeStack();
         fillNodeQueue();
         fillLinkedListStack();
@@ -215,13 +198,36 @@ public class P4Program {
 
     }
 
-
-    public void fillNodeStack() {
+    public void fillJavaStack() {
+        jStack = new Stack<>();
         if (!input.exists()) {
             System.out.println("Error: Input file not found, please select another input file." + "\nReturning to menu...");
             System.out.println("-------------------------------------");
             this.run();
         }
+        try {
+            Scanner fileScanner = new Scanner(new FileReader(input));
+            startWall = System.currentTimeMillis();
+            startCPU = System.nanoTime();
+            while (fileScanner.hasNext()) {
+                Lelement newElement = new Lelement();
+                newElement.word = fileScanner.next();
+                newElement.key = floatingSize;
+                jStack.push(newElement);
+                floatingSize++;
+            }
+            fileScanner.close();
+            stopWall = System.currentTimeMillis();
+            stopCPU = System.nanoTime();
+            jStackWall = ((double) stopWall - (double) startWall) / MILSEC;
+            jStackCPU = ((double) stopCPU - (double) startCPU) / NANOSEC;
+            floatingSize = 0;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void fillNodeStack() {
         try {
             Scanner fileScanner = new Scanner(new FileReader(input));
             stack = new StackNode();
@@ -241,7 +247,7 @@ public class P4Program {
             nodeStackWall = ((double) stopWall - (double) startWall) / MILSEC;
             nodeStackCPU = ((double) stopCPU - (double) startCPU) / NANOSEC;
             totalSize = floatingSize;
-            floatingSize = 0;
+            floatingSize = 0; //reset the size for the next fill operation
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -250,11 +256,6 @@ public class P4Program {
 
 
     public void fillNodeQueue() {
-        if (!input.exists()) {
-            System.out.println("Error: Input file not found, please select another input file." + "\nReturning to menu...");
-            System.out.println("-------------------------------------");
-            this.run();
-        }
         try {
             Scanner fileScanner = new Scanner(new FileReader(input));
             queue = new QueueNode();
@@ -283,11 +284,6 @@ public class P4Program {
 
     public void fillLinkedListStack() {
         stackList = new LinkedList<>();
-        if (!input.exists()) {
-            System.out.println("Error: Input file not found, please select another input file." + "\nReturning to menu...");
-            System.out.println("-------------------------------------");
-            this.run();
-        }
         try {
             Scanner fileScanner = new Scanner(new FileReader(input));
             startWall = System.currentTimeMillis();
@@ -309,16 +305,10 @@ public class P4Program {
             System.out.println(e.getMessage());
         }
 
-
     }
 
     public void fillLinkedListQueue() {
         queueList = new LinkedList<>();
-        if (!input.exists()) {
-            System.out.println("Error: Input file not found, please select another input file." + "\nReturning to menu...");
-            System.out.println("-------------------------------------");
-            this.run();
-        }
         try {
             Scanner fileScanner = new Scanner(new FileReader(input));
             startWall = System.currentTimeMillis();
@@ -343,11 +333,6 @@ public class P4Program {
     }
 
     public void fillDoublyLinkedList() {
-        if (!input.exists()) {
-            System.out.println("Error: Input file not found, please select another input file." + "\nReturning to menu...");
-            System.out.println("-------------------------------------");
-            this.run();
-        }
         try {
             Scanner fileScanner = new Scanner(new FileReader(input));
             DLL = new DoubleNode();
@@ -376,22 +361,25 @@ public class P4Program {
         userInput = new Scanner(System.in);
         System.out.println("Please enter a key to be searched");
         try {
-            keyQuery = userInput.nextInt();
-            if (keyQuery > 20067) {
-                System.out.println("Invalid key (must be between 0 and 20067).");
+            query = userInput.next();
+            if (Integer.parseInt(query) > totalSize - 1) {
+                System.out.println("Invalid key (must be between 0 and " + (totalSize - 1) + ").");
                 searchListsByKey();
             }
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Query not found, returning to menu...");
+            run();
+
 
         }
-        System.out.println("Searching for key: " + keyQuery + "...");
+        System.out.println("Searching for key: " + query + "...");
         keySearchNodeStack();
         keySearchNodeQueue();
         keySearchLinkedListStack();
         keySearchLinkedListQueue();
         keySearchDLL();
+        keySearchJStack();
         System.out.println("Search complete. \nReturning to menu...");
         System.out.println("---------------------------------------");
         run();
@@ -402,18 +390,20 @@ public class P4Program {
         userInput = new Scanner(System.in);
         System.out.println("Please enter a word to be searched");
         try {
-            wordQuery = userInput.next();
+            query = userInput.next();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
 
         }
-        System.out.println("Searching for word: " + wordQuery + "...");
+        System.out.println("Searching for word: " + query + "...");
+
         searchNodeStack();
         searchNodeQueue();
         searchLinkedListStack();
         searchLinkedListQueue();
         searchDLL();
+        searchJStack();
         System.out.println("Search complete. \nReturning to menu...");
         System.out.println("---------------------------------------");
         run();
@@ -423,16 +413,24 @@ public class P4Program {
         StackNode temp = new StackNode(stack.head);
         floatingSize = totalSize;
         while (floatingSize != 0) {
-            if (stack.head.data.key != keyQuery) {
+            if (stack.head.data.key != Integer.parseInt(query)) {
                 temp.push(stack.pop());
                 floatingSize--;
-            } else if (stack.head.data.key == keyQuery) {
+            } else if (stack.head.data.key == Integer.parseInt(query)) {
                 stack.peek();
-                while(stack.head.data.key < totalSize-1) {
+                while (stack.head.data.key < totalSize - 1) {
                     stack.push(temp.pop());
                 }
                 return;
             }
+        }
+        if (floatingSize == 0) { //first method call checks to see if the word is present
+            while (floatingSize < totalSize) {
+                stack.push(temp.pop());
+                floatingSize++;
+            }
+            System.out.println("Query not found, returning to menu...");
+            run();
         }
     }
 
@@ -441,12 +439,12 @@ public class P4Program {
         StackNode temp = new StackNode(stack.head);
         floatingSize = totalSize;
         while (floatingSize != 0) {
-            if (!stack.head.data.word.equalsIgnoreCase(wordQuery)) {
+            if (!stack.head.data.word.equalsIgnoreCase(query)) {
                 temp.push(stack.pop());
                 floatingSize--;
-            } else if (stack.head.data.word.equalsIgnoreCase(wordQuery)) {
+            } else if (stack.head.data.word.equalsIgnoreCase(query)) {
                 stack.peek();
-                while(stack.head.data.key != totalSize-1) {
+                while (stack.head.data.key != totalSize - 1) {
                     stack.push(temp.pop());
                 }
                 return;
@@ -465,13 +463,13 @@ public class P4Program {
     void keySearchNodeQueue() {
         floatingSize = totalSize;
         while (floatingSize != 0) {
-            if(queue.first.data.key != keyQuery){
+            if (queue.first.data.key != Integer.parseInt(query)) {
                 queue.enqueue(queue.dequeue());
                 floatingSize--;
-            } else if (queue.first.data.key == keyQuery) {
+            } else if (queue.first.data.key == Integer.parseInt(query)) {
                 System.out.println("Queue(Node) \nDATA: " + queue.getFirstElement().word + "\nKEY: " + queue.first.data.key);
                 System.out.println();
-                while(floatingSize < totalSize-1) {
+                while (floatingSize < totalSize - 1) {
                     queue.enqueue(queue.dequeue());
                     floatingSize++;
                 }
@@ -480,16 +478,17 @@ public class P4Program {
 
         }
     }
+
     void searchNodeQueue() {
         floatingSize = totalSize;
         while (floatingSize != 0) {
-            if(!queue.first.data.word.equalsIgnoreCase(wordQuery)){
+            if (!queue.first.data.word.equalsIgnoreCase(query)) {
                 queue.enqueue(queue.dequeue());
                 floatingSize--;
-            } else if (queue.first.data.word.equalsIgnoreCase(wordQuery)) {
+            } else if (queue.first.data.word.equalsIgnoreCase(query)) {
                 System.out.println("Queue(Node) \nDATA: " + queue.getFirstElement().word + "\nKEY: " + queue.first.data.key);
                 System.out.println();
-                while(floatingSize < totalSize-1) {
+                while (floatingSize < totalSize - 1) {
                     queue.enqueue(queue.dequeue());
                     floatingSize++;
                 }
@@ -501,15 +500,16 @@ public class P4Program {
     }
 
     void keySearchLinkedListStack() {
+        temp = new LinkedList<>();
         floatingSize = totalSize;
-        while (floatingSize != 0) {
-            if (keyQuery != stackList.peek().key) {
+        while (!(floatingSize < 0)) {
+            if (Integer.parseInt(query) != stackList.peek().key) {
                 temp.push(stackList.pop());
                 floatingSize--;
-            } else if (keyQuery == stackList.peek().key) {
+            } else if (Integer.parseInt(query) == stackList.peek().key) {
                 System.out.println("LinkedList(Stack) \nDATA: " + stackList.getFirst().word + "\nKEY: " + stackList.getFirst().key);
                 System.out.println();
-                while(stackList.peek().key < totalSize-1) {
+                while (stackList.peek().key < totalSize - 1) {
                     stackList.push(temp.pop());
                 }
                 return;
@@ -520,48 +520,47 @@ public class P4Program {
     void searchLinkedListStack() {
         temp = new LinkedList<>();
         floatingSize = totalSize;
-        while (floatingSize != 0) {
-            if (!wordQuery.equalsIgnoreCase(stackList.peek().word)) {
+        while (!(floatingSize < 0)) {
+            if (!query.equalsIgnoreCase(stackList.peek().word)) {
                 temp.push(stackList.pop());
                 floatingSize--;
-            } else if (wordQuery.equalsIgnoreCase(stackList.peek().word)) {
+            } else if (query.equalsIgnoreCase(stackList.peek().word)) {
                 System.out.println("LinkedList(Stack) \nDATA: " + stackList.getFirst().word + "\nKEY: " + stackList.getFirst().key);
                 System.out.println();
-                while(stackList.peek().key < totalSize-1) {
+                while (stackList.peek().key < totalSize - 1) {
                     stackList.push(temp.pop());
                 }
                 return;
             }
         }
-        stackList = temp;
+
     }
 
     void keySearchLinkedListQueue() {
         temp = queueList;
         floatingSize = totalSize;
         while (queueList.getFirst() != null) {
-            if (keyQuery == queueList.getFirst().key) {
+            if (Integer.parseInt(query) == queueList.getFirst().key) {
                 System.out.println("LinkedList(Queue) \nDATA: " + queueList.getFirst().word + "\nKEY: " + queueList.getFirst().key);
                 System.out.println();
                 return;
-            } else if (keyQuery != queueList.getFirst().key) {
+            } else if (Integer.parseInt(query) != queueList.getFirst().key) {
                 queueList.addLast(queueList.getFirst());
                 queueList.pop();
             }
         }
-        queueList = temp;
     }
 
     void searchLinkedListQueue() {
         temp = queueList;
         floatingSize = totalSize;
         while (queueList.getFirst() != null) {
-            if (!wordQuery.equalsIgnoreCase(queueList.getFirst().word)) {
+            if (!query.equalsIgnoreCase(queueList.getFirst().word)) {
                 queueList.addLast(queueList.removeFirst());
-            } else if (wordQuery.equalsIgnoreCase(queueList.getFirst().word)) {
+            } else if (query.equalsIgnoreCase(queueList.getFirst().word)) {
                 System.out.println("LinkedList(Queue) \nDATA: " + queueList.getFirst().word + "\nKEY: " + queueList.getFirst().key);
                 System.out.println();
-                while(floatingSize < totalSize-1) {
+                while (floatingSize < totalSize - 1) {
                     queueList.addLast(queueList.removeFirst());
                     floatingSize++;
                 }
@@ -572,12 +571,13 @@ public class P4Program {
 
     void keySearchDLL() {
         floatingSize = totalSize;
-        while (floatingSize != 0){
-            if (DLL.search.data.key != keyQuery){
+        while (floatingSize != 0) {
+            if (DLL.search.data.key != Integer.parseInt(query)) {
                 DLL.lookNext();
                 floatingSize--;
-            } else if (DLL.search.data.key == keyQuery){
+            } else if (DLL.search.data.key == Integer.parseInt(query)) {
                 System.out.println("Double List \nDATA: " + DLL.search.data.word + "\nKEY: " + DLL.search.data.key);
+                System.out.println();
                 floatingSize = 0;
                 return;
             }
@@ -588,12 +588,13 @@ public class P4Program {
 
     void searchDLL() {
         floatingSize = totalSize;
-        while (floatingSize != 0){
-            if (!DLL.search.data.word.equalsIgnoreCase(wordQuery)){
+        while (floatingSize != 0) {
+            if (!DLL.search.data.word.equalsIgnoreCase(query)) {
                 DLL.lookNext();
                 floatingSize--;
-            } else if (DLL.search.data.word.equalsIgnoreCase(wordQuery)){
+            } else if (DLL.search.data.word.equalsIgnoreCase(query)) {
                 System.out.println("Double List \nDATA: " + DLL.search.data.word + "\nKEY: " + DLL.search.data.key);
+                System.out.println();
                 floatingSize = 0;
                 return;
             }
@@ -602,6 +603,39 @@ public class P4Program {
 
     }
 
+    void keySearchJStack() {
+        Stack<Lelement> tempStack = new Stack<>();
+        floatingSize = totalSize;
+        while (!(floatingSize < 0)) {
+            if (Integer.parseInt(query) != jStack.peek().key) {
+                tempStack.push(jStack.pop());
+                floatingSize--;
+            } else if (Integer.parseInt(query) == jStack.peek().key) {
+                System.out.println("Java Stack Class \nDATA: " + jStack.peek().word + "\nKEY: " + jStack.peek().key);
+                while (jStack.peek().key < totalSize - 1) {
+                    jStack.push(tempStack.pop());
+                }
+                return;
+            }
+        }
+    }
+
+    void searchJStack() {
+        Stack<Lelement> tempStack = new Stack<>();
+        floatingSize = totalSize;
+        while (!(floatingSize < 0)) {
+            if (!query.equalsIgnoreCase(jStack.peek().word)) {
+                tempStack.push(jStack.pop());
+                floatingSize--;
+            } else if (query.equalsIgnoreCase(jStack.peek().word)) {
+                System.out.println("Java Stack Class \nDATA: " + jStack.peek().word + "\nKEY: " + jStack.peek().key);
+                while (jStack.peek().key < totalSize - 1) {
+                    jStack.push(tempStack.pop());
+                }
+                return;
+            }
+        }
+    }
 
     //get input file
     public void getInput() {
@@ -625,13 +659,15 @@ public class P4Program {
     public void showStats() {
         realFormatter = new DecimalFormat("0.0000");
         DecimalFormat sizeFormat = new DecimalFormat("0,000");
-        System.out.println("There are " + sizeFormat.format(totalSize) + " words in the list. \nStack - simple linked list:     " + this.realFormatter.format(nodeStackCPU) + " seconds CPU time    " + this.realFormatter.format(nodeStackWall) + " seconds wall clock " +
+        System.out.println("There are " + sizeFormat.format(totalSize) + " words in the list. " +
+                "\nStack - simple linked list:     " + this.realFormatter.format(nodeStackCPU) + " seconds CPU time    " + this.realFormatter.format(nodeStackWall) + " seconds wall clock " +
                 "\nStack - LinkedList:             " + this.realFormatter.format(listStackCPU) + " seconds CPU time    " + this.realFormatter.format(listStackWall) + " seconds wall clock " +
+                "\nStack - Stack<> class:          " + this.realFormatter.format(jStackCPU) + " seconds CPU time    " + this.realFormatter.format(jStackWall) + " seconds wall clock " +
                 "\n " +
                 "\nQueue - simple linked list:     " + this.realFormatter.format(nodeQueueCPU) + " seconds CPU time    " + this.realFormatter.format(nodeQueueWall) + " seconds wall clock " +
                 "\nQueue - LinkedList:             " + this.realFormatter.format(listQueueCPU) + " seconds CPU time    " + this.realFormatter.format(listQueueWall) + " seconds wall clock " +
                 "\n" +
-                "\nDouble List:                    " + this.realFormatter.format(doubleListCPU)+ " seconds CPU time    " + this.realFormatter.format(doubleListWall) +" seconds wall clock ");
+                "\nDouble List:                    " + this.realFormatter.format(doubleListCPU) + " seconds CPU time    " + this.realFormatter.format(doubleListWall) + " seconds wall clock ");
         System.out.println("-----------------------------------------------------------------------");
         run();
     }
@@ -645,14 +681,19 @@ public class P4Program {
             writer.newLine();
             writer.write("There are " + sizeFormat.format(totalSize) + " words in the list.");
             writer.newLine();
-            writer.write("Stack - simple linked list:     " + this.realFormatter.format(nodeStackCPU) + " seconds CPU time    " + this.realFormatter.format(nodeStackWall) + " seconds wall clock ");
+            writer.write("Stack - simple linked list:   " + this.realFormatter.format(nodeStackCPU) + " seconds CPU time    " + this.realFormatter.format(nodeStackWall) + " seconds wall clock ");
             writer.newLine();
-            writer.write("Stack - LinkedList:     " + this.realFormatter.format(listStackCPU) + " seconds CPU time    " + this.realFormatter.format(listStackWall) + " seconds wall clock ");
+            writer.write("Stack - LinkedList:           " + this.realFormatter.format(listStackCPU) + " seconds CPU time    " + this.realFormatter.format(listStackWall) + " seconds wall clock ");
+            writer.newLine();
+            writer.write("Stack - Stack<> class:      " + this.realFormatter.format(jStackCPU) + " seconds CPU time    " + this.realFormatter.format(jStackWall) + " seconds wall clock ");
             writer.newLine();
             writer.newLine();
-            writer.write("Queue - simple linked list:     " + this.realFormatter.format(nodeQueueCPU) + " seconds CPU time    " + this.realFormatter.format(nodeQueueWall) + " seconds wall clock ");
+            writer.write("Queue - simple linked list:   " + this.realFormatter.format(nodeQueueCPU) + " seconds CPU time    " + this.realFormatter.format(nodeQueueWall) + " seconds wall clock ");
             writer.newLine();
-            writer.write("Queue - LinkedList:     " + this.realFormatter.format(listQueueCPU) + " seconds CPU time    " + this.realFormatter.format(listQueueWall) + " seconds wall clock ");
+            writer.write("Queue - LinkedList:           " + this.realFormatter.format(listQueueCPU) + " seconds CPU time    " + this.realFormatter.format(listQueueWall) + " seconds wall clock ");
+            writer.newLine();
+            writer.newLine();
+            writer.write("Double List:                  " + this.realFormatter.format(doubleListCPU) + " seconds CPU time    " + this.realFormatter.format(doubleListWall) + " seconds wall clock ");
             writer.close();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -670,85 +711,85 @@ public class P4Program {
         try {
             menuSelection = userInput.next();
 
-        if (menuSelection.equals("1")) {
-            this.getInput();
-        }
-        if (menuSelection.equals("2")) {
-            if (input == null) {
-                System.out.println("Error: Input file not found, please select an input file.");
-                System.out.println("-------------------------------------");
-                this.getInput();
-                return;
-            }
-            System.out.println("Loading lists... (Will return to menu when complete)");
-            this.loadLists();
-        }
-        if (menuSelection.equals("3")) {
-            if (input == null) {
-                System.out.println("Error: Input file not found, please select an input file.");
-                System.out.println("-------------------------------------");
+            if (menuSelection.equals("1")) {
                 this.getInput();
             }
-            if (totalSize == 0) {
-                System.out.println("Error: Please load the lists before attempting a search...");
-                System.out.println("-------------------------------------");
-                this.run();
+            else if (menuSelection.equals("2")) {
+                if (input == null) {
+                    System.out.println("Error: Input file not found, please select an input file.");
+                    System.out.println("-------------------------------------");
+                    this.getInput();
+                    return;
+                }
+                System.out.println("Loading lists... (Will return to menu when complete)");
+                this.loadLists();
             }
-            searchListsByWord();
-        }
-        if (menuSelection.equals("4")) {
-            if (input == null) {
-                System.out.println("Error: Input file not found, please select an input file.");
-                System.out.println("-------------------------------------");
-                this.getInput();
+            else if (menuSelection.equals("3")) {
+                if (input == null) {
+                    System.out.println("Error: Input file not found, please select an input file.");
+                    System.out.println("-------------------------------------");
+                    this.getInput();
+                }
+                if (totalSize == 0) {
+                    System.out.println("Error: Please load the lists before attempting a search...");
+                    System.out.println("-------------------------------------");
+                    this.run();
+                }
+                searchListsByWord();
             }
-            if (totalSize == 0) {
-                System.out.println("Error: Please load the lists before attempting a search...");
-                System.out.println("-------------------------------------");
-                this.run();
-            }
+            else if (menuSelection.equals("4")) {
+                if (input == null) {
+                    System.out.println("Error: Input file not found, please select an input file.");
+                    System.out.println("-------------------------------------");
+                    this.getInput();
+                }
+                if (totalSize == 0) {
+                    System.out.println("Error: Please load the lists before attempting a search...");
+                    System.out.println("-------------------------------------");
+                    this.run();
+                }
 
                 searchListsByKey();
 
-        }
-        if (menuSelection.equals("5")) {
-            if (input == null) {
-                System.out.println("Error: Input file not found, please select an input file.");
-                System.out.println("-------------------------------------");
-                this.getInput();
             }
-            if (totalSize == 0) {
-                System.out.println("Error: Please load the lists before attempting to display statistics...");
-                System.out.println("-------------------------------------");
-                this.run();
+           else if (menuSelection.equals("5")) {
+                if (input == null) {
+                    System.out.println("Error: Input file not found, please select an input file.");
+                    System.out.println("-------------------------------------");
+                    this.getInput();
+                }
+                if (totalSize == 0) {
+                    System.out.println("Error: Please load the lists before attempting to display statistics...");
+                    System.out.println("-------------------------------------");
+                    this.run();
+                }
+                showStats();
             }
-            showStats();
-        }
-        if (menuSelection.equals("6")) {
-            if (input == null) {
-                System.out.println("Error: Input file not found, please select an input file.");
-                System.out.println("-------------------------------------");
-                this.getInput();
+           else if (menuSelection.equals("6")) {
+                if (input == null) {
+                    System.out.println("Error: Input file not found, please select an input file.");
+                    System.out.println("-------------------------------------");
+                    this.getInput();
+                }
+                if (totalSize == 0) {
+                    System.out.println("Error: Please load the lists before attempting to write statistics...");
+                    System.out.println("-------------------------------------");
+                    this.run();
+                }
+                writeStats();
             }
-            if (totalSize == 0) {
-                System.out.println("Error: Please load the lists before attempting to write statistics...");
-                System.out.println("-------------------------------------");
-                this.run();
+           else if (menuSelection.equals("7")) {
+                System.out.println("Terminating program...");
+                System.exit(0);
             }
-            writeStats();
-        }
-        if (menuSelection.equals("7")) {
-            System.out.println("Terminating program...");
-            System.exit(0);
-        }
-        if (!menuSelection.equals("7") || !menuSelection.equals("6") ||
-                !menuSelection.equals("5") || !menuSelection.equals("4") ||
-                !menuSelection.equals("3") || !menuSelection.equals("2") ||
-                !menuSelection.equals("1")) {
-            System.out.println("Invalid selection. \nPlease input an integer [1-7] for the corresponding menu option.");
-            System.out.println("-------------------------------------------------------------------------------------");
-            run();
-        }
+            else if (!menuSelection.equals("7") || !menuSelection.equals("6") ||
+                    !menuSelection.equals("5") || !menuSelection.equals("4") ||
+                    !menuSelection.equals("3") || !menuSelection.equals("2") ||
+                    !menuSelection.equals("1")) {
+                System.out.println("Invalid selection. \nPlease input an integer [1-7] for the corresponding menu option.");
+                System.out.println("-------------------------------------------------------------------------------------");
+                run();
+            }
             userInput.close();
         } catch (Exception e) {
             System.out.println(e.getMessage());
